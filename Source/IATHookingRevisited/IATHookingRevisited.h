@@ -146,4 +146,3 @@ typedef NTSTATUS (WINAPI* NtQueryInformationProcess)(
 	DWORD ProcessInformationLength,
 	PDWORD ReturnLength
 	);
-

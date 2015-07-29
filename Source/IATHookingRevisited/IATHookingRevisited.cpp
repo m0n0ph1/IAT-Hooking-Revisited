@@ -1,5 +1,4 @@
 // IATHookingRevisited.cpp : Defines the entry point for the console application.
-//
 #include "stdafx.h"
 #include <windows.h>
 #include <DbgHelp.h>
@@ -565,8 +564,6 @@ BOOL HookFunction(DWORD dwProcessId, CHAR* pModuleName, CHAR* pFunctionName,
 	return FALSE;
 }
 
-
-
 int GetCalcId()
 {
 	HANDLE hProcessSnap;
@@ -644,4 +641,3 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
-

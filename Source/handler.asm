@@ -1,9 +1,6 @@
 bits 32
-
 push ebp;
-
 xor ebx, ebx
-
 jmp short start
 
 ;================================
@@ -126,10 +123,8 @@ push 0x041786F0; oxA
 shr dword [esp], 0x4
 push 0x42656761; ageB
 push 0x7373654D; Mess
-
 push esp ; lpProcName
 push ecx ; hModule
-
 call eax
 
 ;================================
@@ -140,14 +135,11 @@ push ebx
 push ebx
 push ebx
 call eax
-
 mov ecx, 7
 pop_loop:
 pop eax
 loop pop_loop
-
 pop ebp
-
 mov eax, 0xDEADBEEF
 jmp eax
 
