@@ -1,15 +1,14 @@
 # IAT-Hooking-Revisited
-Introduction
 
 Import address table (IAT) hooking is a well documented technique for intercepting calls to imported functions. However, most methods rely on suspicious API functions and leave several easy to identify artifacts. This paper explores different ways IAT hooking can be employed while circumventing common detection mechanisms. 
 
-The Traditional Way
+#The Traditional Way
 
 IAT hooking is usually achieved via DLL injection. When the DLL containing the hooking code is injected into the target process, it is given access to the process’s memory. From there it can rewrite the IAT entries, pointing them to handlers within the DLL. While this works, it is easy to detect. Depending on the approach taken several different types of artifacts can be left behind such as registry keys in the hive or threads and modules in memory. Complicating matters further, the address of the handler points to the injected module rather than the module exporting the original function.  
 
 These traces do not bode well for covert activities. Modified IAT entries are easy to detect by verifying that every entry in in the table points to the appropriate module (or at least to a windows system module). Any malicious modules, once identified, can easily be dumped from memory for further analysis.
 
-A Different Approach
+#A Different Approach
 
 Many pitfalls of the DLL injection approach can be avoided by doing away with DLL injection altogether. This can be accomplished by interacting with the target process solely using OpenProcess, NtQueryInformationProcess, ReadProcessMemory, and WriteProcessMemory. While this is quite a bit more work there are a few significant payoffs:
 Fewer artifacts (no DLLs written to the harddrive, no DLLs in memory, no threads owned by other processes etc).
@@ -25,7 +24,7 @@ Write the handler function to the .text section of the appropriate import module
 Update the import address using WriteProcessMemory.
 The result is IAT hooking that is not detected by GMER 1.0.15.15641 or HookShark 0.9. In this proof of concept we will be hooking the windows calculator import USER32.dll!GetClipboardData.
  
-Locating The Remote PEB
+#Locating The Remote PEB
 
 The easiest way to locate the PEB of an external process is to call OpenProcess with PROCESS_QUERY_LIMITED_INFORMATION rights, then pass the process handle and ProcessBasicInformation (0) to NtQueryInformationProcess.
 
@@ -102,7 +101,7 @@ PLOADED_IMAGE ReadRemoteImage(HANDLE hProcess, LPCVOID lpImageBaseAddress)
       return pImage;
 }
  
-Finding The Remote Import Address
+#Finding The Remote Import Address
 
 Given the remote image header we must find the image import descriptor for user32.dll and make our way to the ILT and IAT using ReadProcessMemory, just as we did to acquire the remote image.
 
@@ -142,7 +141,7 @@ PIMAGE_THUNK_DATA32 pIAT = ReadRemoteIAT
       &descriptor
 );
  
-Injecting Code And Patching The IAT
+#Injecting Code And Patching The IAT
 
 As was state earlier, the location of the hook handler in memory can give away the presence of hooking. Optimally, the handler for our hook should be located within the .text section of the module that exports the target function. Below is a function that will allow us to find the appropriate remote import module by name.
 
@@ -314,7 +313,7 @@ HookFunction
       0x100
 );
  
-Testing The Proof Of Concept
+#Testing The Proof Of Concept
 
 Compile the application (see resources for download information). Before running it, ensure that an instance of calculator is running. Run the application and it will attempt to hook the first process named calc.exe that it encounters. Confirm that no errors occurred. Output from successful injection should look similar to this:
 
@@ -324,11 +323,14 @@ Press any key to continue . . .
 
 To test the hook use the calculators paste feature. Upon doing so a message box should appear. When the message box is closed calculator should resume functioning as expected.
  
-Conclusion
+#Conclusion
 
 While much progress has been made in hooking detection, the IAT hooking described in this paper demonstrates that established rootkit detecting applications can be circumvented using variations of established techniques. It is very likely that applying the same methods to different forms of hooking such as EAT hooking or inline hooking will result in similar improvements.
  
-Resources
+#Resources
+
+This ReadMe
+http://www.autosectools.com/IAT-Hooking-Revisited.html
 
 IAT Hooking Revisited Proof Of Concept Source
 http://code.google.com/p/iat-hooking-revisited/
